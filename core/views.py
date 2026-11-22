@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 from .models import Sucursal, Especialista, Servicio, Cita, Atencion, Comision, Auditoria
 from .serializers import (
     SucursalSerializer, EspecialistaSerializer, ServicioSerializer,
@@ -34,8 +35,21 @@ class EspecialistaViewSet(viewsets.ModelViewSet):
 
 
 class ServicioViewSet(viewsets.ModelViewSet):
-    queryset = Servicio.objects.filter(activo=True)
+    queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
+
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        servicios = Servicio.objects.filter(
+            activo=True
+        )
+
+        serializer = self.get_serializer(
+            servicios,
+            many=True
+        )
+        return Response(serializer.data)
+
 
 
 class CitaViewSet(viewsets.ModelViewSet):

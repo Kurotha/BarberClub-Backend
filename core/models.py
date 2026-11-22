@@ -25,6 +25,12 @@ class Sucursal(models.Model):
     def __str__(self):
         return f"{self.comuna} — {self.nombre}"
 
+class CategoriaServicio(models.TextChoices):
+    MASCULINO = "MASCULINO", "Masculino"
+    FEMENINO = "FEMENINO", "Femenino"
+    UNISEX = "UNISEX", "Unisex"
+    RITUAL = "RITUAL", "Ritual"
+
 
 class Especialista(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.PROTECT, related_name='perfil_especialista')
@@ -43,6 +49,9 @@ class Servicio(models.Model):
     duracion_minutos = models.PositiveIntegerField(default=30)
     precio = models.PositiveIntegerField()
     activo = models.BooleanField(default=True)
+    descripcion = models.CharField(max_length=300, null = True)
+    imagen = models.TextField(blank = True , null = True)
+    categoria = models.CharField(max_length = 10, choices = CategoriaServicio.choices, default= 'Unisex')
 
     def __str__(self):
         return f"{self.nombre} ({self.duracion_minutos} min - ${self.precio})"
