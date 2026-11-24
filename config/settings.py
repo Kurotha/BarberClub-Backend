@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j=y+yk%-zoz6e7s^s$h(qrwp+s*j3!uj-v)^on_#&$#7jbvr3b'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'development-only-change-me-barberclub')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -114,8 +115,36 @@ PASSWORD_HASHERS = [
 # Permisos de conexión para los dos Frontends (Público y Backoffice)
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    'http://127.0.0.1:5173',
     'http://localhost:5174',
+    'http://127.0.0.1:5174',
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ['rest_framework.authentication.SessionAuthentication'],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {'anon': '30/min', 'user': '120/min'},
+}
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = os.getenv('DJANGO_SECURE_COOKIES', 'False').lower() == 'true'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = SESSION_COOKIE_SECURE
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
@@ -138,9 +167,15 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+EMAIL_BACKEND = (
+    'django.core.mail.backends.smtp.EmailBackend'
+    if os.getenv('DJANGO_SMTP_HOST')
+    else 'django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_HOST = os.getenv('DJANGO_SMTP_HOST', '')
+EMAIL_PORT = int(os.getenv('DJANGO_SMTP_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('DJANGO_SMTP_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('DJANGO_SMTP_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('DJANGO_SMTP_TLS', 'True').lower() == 'true'
+DEFAULT_FROM_EMAIL = os.getenv('DJANGO_FROM_EMAIL', 'no-reply@barberclub.cl')
 AUTH_USER_MODEL = 'core.Usuario'

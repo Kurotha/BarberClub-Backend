@@ -19,7 +19,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core.views import (
     SucursalViewSet, EspecialistaViewSet, ServicioViewSet,
-    CitaViewSet, AtencionViewSet, ComisionViewSet
+    CitaViewSet, AtencionViewSet, ComisionViewSet,
+    auth_register, auth_login, auth_logout, auth_me,
+    password_reset_request, password_reset_confirm
 )
 
 router = DefaultRouter()
@@ -32,5 +34,11 @@ router.register(r'comisiones', ComisionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/auth/register/', auth_register),
+    path('api/auth/login/', auth_login),
+    path('api/auth/logout/', auth_logout),
+    path('api/auth/me/', auth_me),
+    path('api/auth/password-reset/', password_reset_request),
+    path('api/auth/password-reset-confirm/', password_reset_confirm),
     path('api/', include(router.urls)),
 ]
