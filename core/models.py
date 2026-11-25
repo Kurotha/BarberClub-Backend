@@ -31,17 +31,27 @@ class CategoriaServicio(models.TextChoices):
     UNISEX = "UNISEX", "Unisex"
     RITUAL = "RITUAL", "Ritual"
 
+class Disciplinas(models.TextChoices):
+    BARBERIA = "BARBERIA", "Barbería"
+    PELUQUERIA = "PELUQUERIA", "Peluquería"
+    COLORIMETRIA = "COLORIMETRIA", "Colorimetría"
+    ESTILISMO = "ESTILISMO", "Estilismo"
+
+
 
 class Especialista(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.PROTECT, related_name='perfil_especialista')
     sucursal = models.ForeignKey(Sucursal, on_delete=models.PROTECT, related_name='especialistas')
     especialidad = models.CharField(max_length=120)
+    disciplina = models.CharField(max_length = 15, choices = Disciplinas.choices, default= 'Barberia')
     biografia = models.TextField(blank=True)
     anos_experiencia = models.PositiveIntegerField(default=1)
     porcentaje_comision = models.DecimalField(max_digits=5, decimal_places=2, default=50.00)
+    activo = models.BooleanField(default=True)
+    imagen = models.TextField(blank = True , null = True)
 
     def __str__(self):
-        return f"{self.usuario.get_full_name()} ({self.sucursal.comuna})"
+        return f"{self.usuario.get_full_name()} ({self.sucsursal.comuna})"
 
 
 class Servicio(models.Model):

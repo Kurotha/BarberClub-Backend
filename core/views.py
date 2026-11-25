@@ -163,8 +163,20 @@ def auth_user_data(usuario):
 
 
 class SucursalViewSet(viewsets.ModelViewSet):
-    queryset = Sucursal.objects.filter(activa=True)
+    queryset = Sucursal.objects.all()
     serializer_class = SucursalSerializer
+
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        Sucursales = Sucursal.objects.filter(
+            activa = True
+        )
+
+        serializer = self.get_serializer(
+            Sucursales,
+            many = True
+        )
+        return Response(serializer.data)
 
 
 class EspecialistaViewSet(viewsets.ModelViewSet):
@@ -177,6 +189,19 @@ class EspecialistaViewSet(viewsets.ModelViewSet):
         if sucursal_id:
             qs = qs.filter(sucursal_id=sucursal_id)
         return qs
+
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        especialistas = Especialista.objects.filter(
+            activo = True
+        )
+
+        serializer = self.get_serializer(
+            especialistas,
+            many = True
+        )
+
+        return Response(serializer.data)
 
 
 class ServicioViewSet(viewsets.ModelViewSet):
