@@ -14,8 +14,8 @@ from rest_framework.decorators import action, api_view, permission_classes, thro
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
-from .models import Usuario
-from .models import Sucursal, Especialista, Servicio, Cita, Atencion, Comision, Auditoria
+from rest_framework.generics import ListAPIView
+from .models import Sucursal, Especialista, Servicio, Cita, Atencion, Comision, Auditoria, Usuario
 from .serializers import (
     SucursalSerializer, EspecialistaSerializer, ServicioSerializer,
     CitaSerializer, AtencionSerializer, ComisionSerializer
@@ -180,8 +180,21 @@ class EspecialistaViewSet(viewsets.ModelViewSet):
 
 
 class ServicioViewSet(viewsets.ModelViewSet):
-    queryset = Servicio.objects.filter(activo=True)
+    queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
+
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        servicios = Servicio.objects.filter(
+            activo=True
+        )
+
+        serializer = self.get_serializer(
+            servicios,
+            many=True
+        )
+        return Response(serializer.data)
+
 
 
 class CitaViewSet(viewsets.ModelViewSet):
