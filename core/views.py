@@ -15,10 +15,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
-from .models import Sucursal, Especialista, Servicio, Cita, Atencion, Comision, Auditoria, Usuario
+from .models import Sucursal, Especialista, Servicio, Cita, Auditoria, Usuario
 from .serializers import (
     SucursalSerializer, EspecialistaSerializer, ServicioSerializer,
-    CitaSerializer, AtencionSerializer, ComisionSerializer
+    CitaSerializer
 )
 
 SUCURSALES_VECINAS = {
@@ -332,30 +332,3 @@ class CitaViewSet(viewsets.ModelViewSet):
             metadata_json={'cita_id': cita.id},
         )
         return Response({'status': 'Cita cancelada y bloque liberado'})
-
-
-class AtencionViewSet(viewsets.ModelViewSet):
-    queryset = Atencion.objects.all()
-    serializer_class = AtencionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        if self.request.user.rol in ('ADMIN', 'RECEPCION'):
-            return qs
-        if self.request.user.rol == 'BARBERO':
-            return qs.filter(cita__especialista__usuario=self.request.user)
-        return qs.none()
-
-class ComisionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Comision.objects.select_related('especialista__usuario', 'atencion').all()
-    serializer_class = ComisionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        if self.request.user.rol == 'ADMIN':
-            return qs
-        if self.request.user.rol == 'BARBERO':
-            return qs.filter(especialista__usuario=self.request.user)
-        return qs.none()

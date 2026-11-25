@@ -105,10 +105,6 @@ class BarberClubSecurityTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), [])
 
-    def test_atenciones_requieren_autenticacion(self):
-        response = self.client.post('/api/atenciones/', {}, format='json')
-        self.assertIn(response.status_code, (401, 403))
-
     def test_telefono_reserva_solo_admite_numeros(self):
         response = self.client.post(
             '/api/citas/',

@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core.views import (
     SucursalViewSet, EspecialistaViewSet, ServicioViewSet,
-    CitaViewSet, AtencionViewSet, ComisionViewSet,
+    CitaViewSet,
     auth_register, auth_login, auth_logout, auth_me,
     password_reset_request, password_reset_confirm
 )
@@ -29,8 +29,6 @@ router.register(r'sucursales', SucursalViewSet)
 router.register(r'especialistas', EspecialistaViewSet)
 router.register(r'servicios', ServicioViewSet)
 router.register(r'citas', CitaViewSet)
-router.register(r'atenciones', AtencionViewSet)
-router.register(r'comisiones', ComisionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

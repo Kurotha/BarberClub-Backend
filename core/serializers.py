@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.db import IntegrityError
 from django.utils import timezone
-from .models import Usuario, Sucursal, Especialista, Servicio, Cita, Atencion, Comision, Auditoria
+from .models import Sucursal, Especialista, Servicio, Cita
 
 
 class SucursalSerializer(serializers.ModelSerializer):
@@ -42,7 +42,7 @@ class CitaSerializer(serializers.ModelSerializer):
             'id', 'cliente_nombre', 'cliente_telefono', 'cliente_correo',
             'especialista', 'especialista_nombre', 'sucursal', 'sucursal_nombre',
             'servicio', 'servicio_nombre', 'duracion_minutos', 'fecha_hora',
-            'estado', 'es_walk_in', 'consentimiento_aceptado', 'version_politica'
+            'estado', 'consentimiento_aceptado', 'version_politica'
         ]
         read_only_fields = ['estado']
 
@@ -79,34 +79,3 @@ class CitaSerializer(serializers.ModelSerializer):
             return super().create(validated_data)
         except IntegrityError:
             raise
-
-
-class AtencionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Atencion
-        fields = ['id', 'cita', 'monto_cobrado', 'observacion', 'fecha_cierre']
-
-    def create(self, validated_data):
-        atencion = super().create(validated_data)
-        cita = atencion.cita
-        cita.estado = 'ATENDIDA'
-        cita.save()
-
-        # Cálculo automático 1 a 1 de comisión (HU-02 / RF-06)
-        porcentaje = cita.especialista.porcentaje_comision
-        monto_comision = round((atencion.monto_cobrado * porcentaje) / 100)
-        Comision.objects.create(
-            atencion=atencion,
-            especialista=cita.especialista,
-            porcentaje_aplicado=porcentaje,
-            monto_comision=monto_comision
-        )
-        return atencion
-
-
-class ComisionSerializer(serializers.ModelSerializer):
-    especialista_nombre = serializers.CharField(source='especialista.usuario.get_full_name', read_only=True)
-
-    class Meta:
-        model = Comision
-        fields = ['id', 'atencion', 'especialista', 'especialista_nombre', 'porcentaje_aplicado', 'monto_comision', 'fecha_calculo']

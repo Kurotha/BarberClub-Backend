@@ -73,8 +73,6 @@ class Cita(models.Model):
     servicio = models.ForeignKey(Servicio, on_delete=models.PROTECT, related_name='citas')
     fecha_hora = models.DateTimeField()
     estado = models.CharField(max_length=15, choices=ESTADOS, default='PENDIENTE')
-    es_walk_in = models.BooleanField(default=False)
-
     # Cumplimiento Ley N° 21.719 (HU-09)
     consentimiento_aceptado = models.BooleanField(default=False)
     fecha_consentimiento = models.DateTimeField(auto_now_add=True)
@@ -91,28 +89,6 @@ class Cita(models.Model):
 
     def __str__(self):
         return f"Cita #{self.id} - {self.cliente_nombre} con {self.especialista}"
-
-
-class Atencion(models.Model):
-    cita = models.OneToOneField(Cita, on_delete=models.PROTECT, related_name='atencion')
-    monto_cobrado = models.PositiveIntegerField()
-    observacion = models.TextField(blank=True)
-    fecha_cierre = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Atención Cita #{self.cita.id} - ${self.monto_cobrado}"
-
-
-class Comision(models.Model):
-    atencion = models.OneToOneField(Atencion, on_delete=models.PROTECT, related_name='comision')
-    especialista = models.ForeignKey(Especialista, on_delete=models.PROTECT, related_name='comisiones')
-    porcentaje_aplicado = models.DecimalField(max_digits=5, decimal_places=2)
-    monto_comision = models.PositiveIntegerField()
-    fecha_calculo = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Comisión {self.especialista} - ${self.monto_comision}"
-
 
 class Auditoria(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True)
