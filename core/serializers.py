@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import IntegrityError
+from django.utils import timezone
 from .models import Usuario, Sucursal, Especialista, Servicio, Cita, Atencion, Comision, Auditoria
 
 
@@ -36,6 +37,7 @@ class CitaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cita
+        validators = []
         fields = [
             'id', 'cliente_nombre', 'cliente_telefono', 'cliente_correo',
             'especialista', 'especialista_nombre', 'sucursal', 'sucursal_nombre',
@@ -51,13 +53,32 @@ class CitaSerializer(serializers.ModelSerializer):
             )
         return value
 
+    def validate_cliente_nombre(self, value):
+        value = ' '.join(value.split())
+        if len(value) < 3:
+            raise serializers.ValidationError('Ingrese un nombre válido.')
+        if not all(char.isalpha() or char.isspace() for char in value):
+            raise serializers.ValidationError('El nombre debe contener solo letras.')
+        return value
+
+    def validate_cliente_telefono(self, value):
+        import re
+        if not re.fullmatch(r'\+569[0-9]{8}', value):
+            raise serializers.ValidationError(
+                'Ingrese un teléfono chileno con el formato +569 seguido de 8 dígitos.'
+            )
+        return value.strip()
+
+    def validate_fecha_hora(self, value):
+        if value <= timezone.now():
+            raise serializers.ValidationError('La fecha y hora deben ser futuras.')
+        return value
+
     def create(self, validated_data):
         try:
             return super().create(validated_data)
         except IntegrityError:
-            raise serializers.ValidationError(
-                {"fecha_hora": "El especialista ya tiene una reserva activa en ese bloque horario."}
-            )
+            raise
 
 
 class AtencionSerializer(serializers.ModelSerializer):
