@@ -17,6 +17,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Aumentando el límite de memoria ingresada
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/

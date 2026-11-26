@@ -18,8 +18,8 @@ class EspecialistaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Especialista
         fields = [
-            'id', 'nombre_completo', 'sucursal', 'sucursal_nombre',
-            'sucursal_comuna', 'especialidad', 'biografia', 'anos_experiencia'
+            'id', 'usuario', 'nombre_completo', 'sucursal', 'sucursal_nombre',
+            'sucursal_comuna', 'especialidad', 'disciplina','biografia', 'anos_experiencia', 'activo', 'imagen'
         ]
 
 
